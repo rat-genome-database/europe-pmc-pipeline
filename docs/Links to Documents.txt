@@ -1,0 +1,11 @@
+Schema: 
+https://urldefense.com/v3/__https:/europepmc.org/docs/labslink.xsd__;!!H8mHWRdzp34!om2uadOLRYIUO7SV1b0IKk00vxn1uwcGnRIpFQOOvFewtNfDEC7SSL8tpbrm9Iw$
+
+Technical documentation:
+https://urldefense.com/v3/__https:/europepmc.org/docs/labslink_schema_documentation.pdf__;!!H8mHWRdzp34!om2uadOLRYIUO7SV1b0IKk00vxn1uwcGnRIpFQOOvFewtNfDEC7SSL8tMCZ2Skc$
+
+Using Excel to generate external links data: 
+https://urldefense.com/v3/__https:/europepmc.org/docs/labslink_excel_instructions.pdf__;!!H8mHWRdzp34!om2uadOLRYIUO7SV1b0IKk00vxn1uwcGnRIpFQOOvFewtNfDEC7SSL8tdb71LK0$
+
+Demonstration Perl program to generate LabsLink files: 
+https://urldefense.com/v3/__https:/europepmc.org/docs/labslink_tab_convert.zip__;!!H8mHWRdzp34!om2uadOLRYIUO7SV1b0IKk00vxn1uwcGnRIpFQOOvFewtNfDEC7SSL8tsOwCk1E$
