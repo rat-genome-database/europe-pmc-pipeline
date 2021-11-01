@@ -55,38 +55,10 @@ public class DataConverter {
         return data;
     }
 
-    public List<DataConverter> getDiseaseOntologies() throws Exception{
+    public List<DataConverter> getOntologies(String ont) throws Exception{
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
-        List<Term> terms = dao.getActiveTerms("RDO");
-
-        for (Term t : terms){
-            DataConverter dc = new DataConverter();
-            dc.setTitle(t.getTerm());
-            dc.setAccId(t.getAccId());
-            data.add(dc);
-        }
-        return data;
-    }
-
-    public List<DataConverter> getGeneOntologies() throws Exception{
-        List<DataConverter> data = new ArrayList<>();
-        OntologyXDAO dao = new OntologyXDAO();
-        List<Term> terms = dao.getActiveTerms("MF");
-
-        for (Term t : terms){
-            DataConverter dc = new DataConverter();
-            dc.setTitle(t.getTerm());
-            dc.setAccId(t.getAccId());
-            data.add(dc);
-        }
-        return data;
-    }
-
-    public List<DataConverter> getMammalianPhenotype() throws Exception{
-        List<DataConverter> data = new ArrayList<>();
-        OntologyXDAO dao = new OntologyXDAO();
-        List<Term> terms = dao.getActiveTerms("MP");
+        List<Term> terms = dao.getActiveTerms(ont); // RDO, MF, MP, HP, PW
 
         for (Term t : terms){
             DataConverter dc = new DataConverter();

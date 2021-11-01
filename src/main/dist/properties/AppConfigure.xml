@@ -2,6 +2,6 @@
 
 <beans>
     <bean id="manager" class="edu.mcw.rgd.europepmc.Manager">
-        <property name="version" value="Europe PMC pipeline -- build 10/28/2021"/>
+        <property name="version" value="Europe PMC pipeline -- build 11/01/2021"/>
     </bean>
 </beans>

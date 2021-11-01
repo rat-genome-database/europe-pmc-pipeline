@@ -54,6 +54,21 @@ public class Manager {
                         file = "RGDgeneOntology.xml.gz";
                         manager.run(url,file);
                         break;
+                    case "--ontMamPhen":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                        file = "RGDmammalianPhenotype.xml.gz";
+                        manager.run(url,file);
+                        break;
+                    case "--ontHumPhen":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=Human";
+                        file = "RGDhumanPhenotype.xml.gz";
+                        manager.run(url,file);
+                        break;
+                    case "--ontPathway":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                        file = "RGDpathwayOntology";
+                        manager.run(url,file);
+                        break;
                 }
             }
         }
@@ -64,9 +79,14 @@ public class Manager {
 
     void run(String url, String file) throws Exception{
         logger.info(getVersion());
-        logger.info("Creating file(s) start!");
-        create(url,file);
-        logger.info("Creating file(s) end");
+        logger.info("Creating file \"" + file + "\" start!");
+        try {
+            create(url, file);
+        }
+        catch (Exception e){
+            logger.info(e);
+        }
+        logger.info("Creating file \"" + file + "\" end");
     }
 
     void create(String url, String file) throws Exception{
@@ -88,11 +108,23 @@ public class Manager {
                 list = dc.getQTLs();
                 break;
             case "RGDdiseaseOntologies.xml.gz":
-                list = dc.getDiseaseOntologies();
+                list = dc.getOntologies("RDO");
                 ontology = true;
                 break;
             case "RGDgeneOntology.xml.gz":
-                list = dc.getGeneOntologies();
+                list = dc.getOntologies("MF");
+                ontology = true;
+                break;
+            case "RGDmammalianPhenotype.xml.gz":
+                list = dc.getOntologies("MP");
+                ontology = true;
+                break;
+            case "RGDhumanPhenotype.xml.gz":
+                list = dc.getOntologies("HP");
+                ontology = true;
+                break;
+            case "RGDpathwayOntology":
+                list = dc.getOntologies("PW");
                 ontology = true;
                 break;
         }
