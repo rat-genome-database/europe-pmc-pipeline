@@ -123,7 +123,7 @@ public class Manager {
                 list = dc.getOntologies("HP");
                 ontology = true;
                 break;
-            case "RGDpathwayOntology":
+            case "RGDpathwayOntology.xml.gz":
                 list = dc.getOntologies("PW");
                 ontology = true;
                 break;
@@ -166,7 +166,7 @@ public class Manager {
         if( outputFile.endsWith(".gz") ) {
             return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream("data/"+outputFile))));
         } else {
-            return new BufferedWriter(new FileWriter(outputFile));
+            return new BufferedWriter(new FileWriter("data/"+outputFile));
         }
     }
 
