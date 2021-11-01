@@ -66,7 +66,7 @@ public class Manager {
                         break;
                     case "--ontPathway":
                         url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDpathwayOntology";
+                        file = "RGDpathwayOntology.xml.gz";
                         manager.run(url,file);
                         break;
                 }
