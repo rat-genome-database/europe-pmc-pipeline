@@ -1,12 +1,15 @@
 package edu.mcw.rgd.europepmc;
 
+import edu.mcw.rgd.process.Utils;
 import org.apache.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
 
 import java.io.*;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.zip.GZIPOutputStream;
 
@@ -20,76 +23,80 @@ public class Manager {
         new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new FileSystemResource("properties/AppConfigure.xml"));
         try{
             Manager manager = (Manager)(bf.getBean("manager"));
-            for (int i = 0; i < args.length; i++){
-                String url;
-                String file;
-                switch (args[i]){
-                    case "--rgdRef":
-                        url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id={temp}";
-                        file = "RGDReferences.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--genes":
-                        url = "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={temp}";
-                        file = "RGDgenes.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--strains":
-                        url = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id={temp}";
-                        file = "RGDstrains.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--qtls":
-                        url = "https://rgd.mcw.edu/rgdweb/report/qtl/main.html?id={temp}";
-                        file = "RGDqtls.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--ontRDO":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=All";
-                        file = "RGDdiseaseOntologies.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--ontGO":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDgeneOntology.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--ontMamPhen":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDmammalianPhenotype.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--ontHumPhen":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=Human";
-                        file = "RGDhumanPhenotype.xml.gz";
-                        manager.run(url,file);
-                        break;
-                    case "--ontPathway":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDpathwayOntology.xml.gz";
-                        manager.run(url,file);
-                        break;
-                }
-            }
+            manager.run(args);
         }
         catch (Exception e){
            e.printStackTrace();
         }
     }
 
-    void run(String url, String file) throws Exception{
+    void run(String[] args) throws Exception{
         logger.info(getVersion());
-        logger.info("Creating file \"" + file + "\" start!");
+        SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
+        long pipeStart = System.currentTimeMillis();
+        logger.info("   Pipeline started at "+sdt.format(new Date(pipeStart))+"\n");
+        String url;
+        String file;
         try {
-            create(url, file);
+            for (int i = 0; i < args.length; i++){
+                logger.info("======================");
+                switch (args[i]){
+                    case "--rgdRef":
+                        url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id={temp}";
+                        file = "RGDReferences.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--genes":
+                        url = "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={temp}";
+                        file = "RGDgenes.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--strains":
+                        url = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id={temp}";
+                        file = "RGDstrains.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--qtls":
+                        url = "https://rgd.mcw.edu/rgdweb/report/qtl/main.html?id={temp}";
+                        file = "RGDqtls.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--ontRDO":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=All";
+                        file = "RGDdiseaseOntologies.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--ontGO":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                        file = "RGDgeneOntology.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--ontMamPhen":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                        file = "RGDmammalianPhenotype.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--ontHumPhen":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=Human";
+                        file = "RGDhumanPhenotype.xml.gz";
+                        create(url,file);
+                        break;
+                    case "--ontPathway":
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                        file = "RGDpathwayOntology.xml.gz";
+                        create(url,file);
+                        break;
+                }
+            }
         }
         catch (Exception e){
             logger.info(e);
         }
-        logger.info("Creating file \"" + file + "\" end");
+        logger.info("Pipeline runtime -- elapsed time: "+ Utils.formatElapsedTime(pipeStart,System.currentTimeMillis()));
     }
 
     void create(String url, String file) throws Exception{
+        logger.info("\tCreating file \"" + file + "\" start!");
         List<DataConverter> list = new ArrayList<>();
         DataConverter dc = new DataConverter();
         boolean ontology = false;
@@ -129,18 +136,24 @@ public class Manager {
                 break;
         }
         BufferedWriter out = openOutputFile(file);
-        out.write("<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"yes\"?>\n");
+        out.write("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?> \n");
         out.write("<links>\n");
 
         for(int i = 0; i < list.size(); i++){
             out.write("\t<link providerId=\"2134\">\n"); // 1000 is a placeholder
             out.write("\t\t<resource>\n");
             if (ontology){
-                    url = url.replace("{temp}",list.get(i).getAccId());
-                    out.write("\t\t\t<url>" + url  + "</url>\n");
+                url = url.replace("{temp}",list.get(i).getAccId());
+                url = url.replaceAll("&","&amp;");
+                url = url.replaceAll("<","&lt;");
+                url = url.replaceAll(">","&gt;");
+                out.write("\t\t\t<url>" + url  + "</url>\n");
             }
             else {
                 url = url.replace("{temp}", Integer.toString( list.get(i).getRgdId() ) );
+                url = url.replaceAll("&","&amp;");
+                url = url.replaceAll("<","&lt;");
+                url = url.replaceAll(">","&gt;");
                 out.write("\t\t\t<url>" + url + "</url>\n");
             }
             out.write("\t\t\t<title>"+ list.get(i).getTitle() +"</title>\n");
@@ -159,7 +172,9 @@ public class Manager {
         }
         out.write("</links>");
         out.close();
-        logger.info("\tCreated file: "+file);
+        logger.info("\t\tCreated file: "+file);
+
+        logger.info("\tCreating file \"" + file + "\" end");
     }
 
     BufferedWriter openOutputFile(String outputFile) throws IOException {
