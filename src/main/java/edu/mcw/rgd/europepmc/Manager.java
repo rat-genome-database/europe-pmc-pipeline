@@ -91,6 +91,7 @@ public class Manager {
         }
         catch (Exception e){
             logger.info(e);
+            e.printStackTrace();
         }
         logger.info("Pipeline runtime -- elapsed time: "+ Utils.formatElapsedTime(pipeStart,System.currentTimeMillis()));
     }

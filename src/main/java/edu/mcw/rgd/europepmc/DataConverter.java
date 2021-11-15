@@ -76,7 +76,7 @@ public class DataConverter {
         for (Strain strain : strains){
             DataConverter dc = new DataConverter();
             dc.setRgdId(strain.getRgdId());
-            dc.setTitle(strain.getName());
+            dc.setTitle(strain.getSymbol());
             data.add(dc);
         }
         return data;
@@ -89,7 +89,7 @@ public class DataConverter {
         for (QTL qtl : qtls){
             DataConverter dc = new DataConverter();
             dc.setRgdId(qtl.getRgdId());
-            dc.setTitle(qtl.getName());
+            dc.setTitle(qtl.getSymbol());
             data.add(dc);
         }
         return data;
