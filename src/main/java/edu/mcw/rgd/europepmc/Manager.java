@@ -140,27 +140,24 @@ public class Manager {
         out.write("<links>\n");
 
         for(int i = 0; i < list.size(); i++){
-            out.write("\t<link providerId=\"2134\">\n"); // 1000 is a placeholder
+            String title = list.get(i).getTitle().replaceAll("&","&amp;");
+            title = title.replaceAll("<","&lt;");
+            title = title.replaceAll(">","&gt;");
+            out.write("\t<link providerId=\"2134\">\n");
             out.write("\t\t<resource>\n");
             if (ontology){
                 url = url.replace("{temp}",list.get(i).getAccId());
-                url = url.replaceAll("&","&amp;");
-                url = url.replaceAll("<","&lt;");
-                url = url.replaceAll(">","&gt;");
                 out.write("\t\t\t<url>" + url  + "</url>\n");
             }
             else {
                 url = url.replace("{temp}", Integer.toString( list.get(i).getRgdId() ) );
-                url = url.replaceAll("&","&amp;");
-                url = url.replaceAll("<","&lt;");
-                url = url.replaceAll(">","&gt;");
                 out.write("\t\t\t<url>" + url + "</url>\n");
             }
-            out.write("\t\t\t<title>"+ list.get(i).getTitle() +"</title>\n");
+            out.write("\t\t\t<title>"+ title +"</title>\n");
             out.write("\t\t</resource>\n");
             out.write("\t\t<record>\n");
             if (list.get(i).getPmid() != null){
-                out.write("\t\t\t<source>" + "PubMed" + "</source>\n");
+                out.write("\t\t\t<source>" + "MED" + "</source>\n");
                 out.write("\t\t\t<id>" + list.get(i).getPmid() + "</id>\n");
             }
             else {
