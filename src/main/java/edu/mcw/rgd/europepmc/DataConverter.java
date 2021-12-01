@@ -1,10 +1,7 @@
 package edu.mcw.rgd.europepmc;
 
 import edu.mcw.rgd.dao.impl.*;
-import edu.mcw.rgd.datamodel.Gene;
-import edu.mcw.rgd.datamodel.QTL;
-import edu.mcw.rgd.datamodel.Reference;
-import edu.mcw.rgd.datamodel.Strain;
+import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
 
 import java.util.ArrayList;
@@ -15,13 +12,16 @@ public class DataConverter {
     private String title;
     private String pmid = null;
     private String accId = null;
+    private int objectKey;
+    private List<DataConverter> objectRef = new ArrayList<>();
+    private List<DataConverter> references = new ArrayList<>();
 
     public DataConverter(){}
 
-    public List<DataConverter> getReferences() throws Exception{
+    public void createReferences() throws Exception{
         ReferenceDAO rdao = new ReferenceDAO();
         XdbIdDAO xdbDAO = new XdbIdDAO();
-        List<DataConverter> data = new ArrayList<>();
+        AssociationDAO associationDAO = new AssociationDAO();
         List<Reference> list  = rdao.getActiveReferences();
 
         for (Reference ref : list){
@@ -31,67 +31,80 @@ public class DataConverter {
                 dc.setPmid(pubid);
             }
             catch (Exception e){
-                dc.setPmid(null);
+                continue;
             }
             dc.setRgdId(ref.getRgdId());
             dc.setTitle(ref.getTitle());
-            data.add(dc);
+            references.add(dc);
         }
 
-        return data;
+        for (DataConverter dc : references){
+            // get the objects related, then store in objectRef
+            // grab rgd id, and store pubmed id from dc
+            // loop thru objects related to reference
+            List<GenomicElement> refObjs = associationDAO.getElementsAssociatedWithReference(dc.getRgdId());
+            for (GenomicElement ge : refObjs)
+            {
+                DataConverter dc2 = new DataConverter();
+                dc2.setRgdId(ge.getRgdId());
+                dc2.setPmid(dc.getPmid());
+                dc2.setTitle(ge.getSymbol());
+                dc2.setObjectKey(ge.getObjectKey());
+                dc2.setAccId(ge.getSoAccId());
+                objectRef.add(dc2);
+            }
+//            RgdId.getObjectTypeName(ge.getObjectKey())
+        }
+
+        return;
     }
 
     public List<DataConverter> getGenes() throws Exception {
         List<DataConverter> data = new ArrayList<>();
-        GeneDAO dao = new GeneDAO();
-        List<Gene> genes = dao.getAllActiveGenes();
 
-        for (Gene g : genes) {
-            DataConverter dc = new DataConverter();
-            dc.setRgdId(g.getRgdId());
-            dc.setTitle(g.getSymbol());
-            data.add(dc);
+        for (DataConverter dc : objectRef) {
+            if ( RgdId.getObjectTypeName(dc.getObjectKey()).equals("Gene") )
+                data.add(dc);
         }
+
         return data;
     }
 
     public List<DataConverter> getOntologies(String ont) throws Exception{
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
-        List<Term> terms = dao.getActiveTerms(ont); // RDO, MF, MP, HP, PW
+//        List<Term> terms = dao.getActiveTerms(ont); // RDO, MF, MP, HP, PW
+//
+//        for (Term t : terms){
+//            DataConverter dc = new DataConverter();
+//            dc.setTitle(t.getTerm());
+//            dc.setAccId(t.getAccId());
+//            data.add(dc);
+//        }
 
-        for (Term t : terms){
-            DataConverter dc = new DataConverter();
-            dc.setTitle(t.getTerm());
-            dc.setAccId(t.getAccId());
-            data.add(dc);
-        }
+
         return data;
     }
 
     public List<DataConverter> getStrains() throws Exception{
         List<DataConverter> data = new ArrayList<>();
-        StrainDAO dao = new StrainDAO();
-        List<Strain> strains = dao.getActiveStrains();
-        for (Strain strain : strains){
-            DataConverter dc = new DataConverter();
-            dc.setRgdId(strain.getRgdId());
-            dc.setTitle(strain.getSymbol());
-            data.add(dc);
+
+        for (DataConverter dc : objectRef) {
+            if ( RgdId.getObjectTypeName(dc.getObjectKey()).equals("Strain") )
+                data.add(dc);
         }
+
         return data;
     }
 
     public List<DataConverter> getQTLs() throws Exception{
         List<DataConverter> data = new ArrayList<>();
-        QTLDAO dao = new QTLDAO();
-        List<QTL> qtls = dao.getActiveQTLs(3);
-        for (QTL qtl : qtls){
-            DataConverter dc = new DataConverter();
-            dc.setRgdId(qtl.getRgdId());
-            dc.setTitle(qtl.getSymbol());
-            data.add(dc);
+
+        for (DataConverter dc : objectRef) {
+            if ( RgdId.getObjectTypeName(dc.getObjectKey()).equals("QTL") )
+                data.add(dc);
         }
+
         return data;
     }
 
@@ -127,5 +140,21 @@ public class DataConverter {
 
     public void setAccId(String accId) {
         this.accId = accId;
+    }
+
+    public int getObjectKey() {
+        return objectKey;
+    }
+
+    public void setObjectKey(int objectKey) {
+        this.objectKey = objectKey;
+    }
+
+    public List<DataConverter> getReferences() {
+        return references;
+    }
+
+    public void setReferences(List<DataConverter> references) {
+        this.references = references;
     }
 }

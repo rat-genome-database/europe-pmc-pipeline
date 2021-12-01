@@ -15,7 +15,7 @@ import java.util.zip.GZIPOutputStream;
 
 public class Manager {
     public String version;
-
+    public DataConverter getter = new DataConverter();
     protected Logger logger = Logger.getLogger("status");
 
     public static void main(String[] args) throws Exception{
@@ -37,6 +37,7 @@ public class Manager {
         logger.info("   Pipeline started at "+sdt.format(new Date(pipeStart))+"\n");
         String url;
         String file;
+        getter.createReferences();
         try {
             for (int i = 0; i < args.length; i++){
                 logger.info("======================");
@@ -99,72 +100,69 @@ public class Manager {
     void create(String url, String file) throws Exception{
         logger.info("\tCreating file \"" + file + "\" start!");
         List<DataConverter> list = new ArrayList<>();
-        DataConverter dc = new DataConverter();
         boolean ontology = false;
         // get data
         switch (file){
             case "RGDReferences.xml.gz":
-                list = dc.getReferences();
+                list = getter.getReferences();
                 break;
             case "RGDgenes.xml.gz":
-                list = dc.getGenes();
+                list = getter.getGenes();
                 break;
             case "RGDstrains.xml.gz":
-                list = dc.getStrains();
+                list = getter.getStrains();
                 break;
             case "RGDqtls.xml.gz":
-                list = dc.getQTLs();
+                list = getter.getQTLs();
                 break;
             case "RGDdiseaseOntologies.xml.gz":
-                list = dc.getOntologies("RDO");
+                list = getter.getOntologies("RDO");
                 ontology = true;
                 break;
             case "RGDgeneOntology.xml.gz":
-                list = dc.getOntologies("MF");
+                list = getter.getOntologies("MF");
                 ontology = true;
                 break;
             case "RGDmammalianPhenotype.xml.gz":
-                list = dc.getOntologies("MP");
+                list = getter.getOntologies("MP");
                 ontology = true;
                 break;
             case "RGDhumanPhenotype.xml.gz":
-                list = dc.getOntologies("HP");
+                list = getter.getOntologies("HP");
                 ontology = true;
                 break;
             case "RGDpathwayOntology.xml.gz":
-                list = dc.getOntologies("PW");
+                list = getter.getOntologies("PW");
                 ontology = true;
                 break;
         }
+
+
+
         BufferedWriter out = openOutputFile(file);
         out.write("<?xml version=\"1.0\" encoding=\"ISO-8859-1\" ?> \n");
         out.write("<links>\n");
 
-        for(int i = 0; i < list.size(); i++){
-            String title = list.get(i).getTitle().replaceAll("&","&amp;");
-            title = title.replaceAll("<","&lt;");
-            title = title.replaceAll(">","&gt;");
+        for (DataConverter dataConverter : list) {
+            String title = dataConverter.getTitle().replaceAll("&", "&amp;");
+            title = title.replaceAll("<", "&lt;");
+            title = title.replaceAll(">", "&gt;");
             out.write("\t<link providerId=\"2134\">\n");
             out.write("\t\t<resource>\n");
-            if (ontology){
-                url = url.replace("{temp}",list.get(i).getAccId());
-                out.write("\t\t\t<url>" + url  + "</url>\n");
+            if (ontology) {
+                String tempUrl;
+                tempUrl = url.replace("{temp}", dataConverter.getAccId());
+                out.write("\t\t\t<url>" + tempUrl + "</url>\n");
+            } else {
+                String tempUrl;
+                tempUrl = url.replace("{temp}", Integer.toString(dataConverter.getRgdId()));
+                out.write("\t\t\t<url>" + tempUrl + "</url>\n");
             }
-            else {
-                url = url.replace("{temp}", Integer.toString( list.get(i).getRgdId() ) );
-                out.write("\t\t\t<url>" + url + "</url>\n");
-            }
-            out.write("\t\t\t<title>"+ title +"</title>\n");
+            out.write("\t\t\t<title>" + title + "</title>\n");
             out.write("\t\t</resource>\n");
             out.write("\t\t<record>\n");
-            if (list.get(i).getPmid() != null){
-                out.write("\t\t\t<source>" + "MED" + "</source>\n");
-                out.write("\t\t\t<id>" + list.get(i).getPmid() + "</id>\n");
-            }
-            else {
-                out.write("\t\t\t<source>" + "RGD" + "</source>\n");
-                out.write("\t\t\t<id>" + list.get(i).getRgdId() + "</id>\n");
-            }
+            out.write("\t\t\t<source>" + "MED" + "</source>\n");
+            out.write("\t\t\t<id>" + dataConverter.getPmid() + "</id>\n");
             out.write("\t\t</record>\n");
             out.write("\t</link>\n");
         }
