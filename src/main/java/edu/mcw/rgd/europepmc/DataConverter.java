@@ -2,7 +2,9 @@ package edu.mcw.rgd.europepmc;
 
 import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.datamodel.*;
+import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
+import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -39,19 +41,16 @@ public class DataConverter {
         }
 
         for (DataConverter dc : references){
-            // get the objects related, then store in objectRef
-            // grab rgd id, and store pubmed id from dc
-            // loop thru objects related to reference
-            List<GenomicElement> refObjs = associationDAO.getElementsAssociatedWithReference(dc.getRgdId());
-            for (GenomicElement ge : refObjs)
+            List<GenomicElement> refObjs = associationDAO.getElementsAssociatedWithReference(dc.getRgdId());// get the objects related
+            for (GenomicElement ge : refObjs)// loop thru objects related to reference
             {
                 DataConverter dc2 = new DataConverter();
                 dc2.setRgdId(ge.getRgdId());
-                dc2.setPmid(dc.getPmid());
+                dc2.setPmid(dc.getPmid()); // store pubmed id from dc (references)
                 dc2.setTitle(ge.getSymbol());
-                dc2.setObjectKey(ge.getObjectKey());
+                dc2.setObjectKey(ge.getObjectKey()); // for sorting purposes
                 dc2.setAccId(ge.getSoAccId());
-                objectRef.add(dc2);
+                objectRef.add(dc2); // store in objectRef
             }
 //            RgdId.getObjectTypeName(ge.getObjectKey())
         }
@@ -73,15 +72,39 @@ public class DataConverter {
     public List<DataConverter> getOntologies(String ont) throws Exception{
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
-//        List<Term> terms = dao.getActiveTerms(ont); // RDO, MF, MP, HP, PW
-//
-//        for (Term t : terms){
-//            DataConverter dc = new DataConverter();
-//            dc.setTitle(t.getTerm());
-//            dc.setAccId(t.getAccId());
-//            data.add(dc);
-//        }
+        AnnotationDAO adao = new AnnotationDAO();
+        // RDO DOID, GO, MP, HP, PW
+        for (DataConverter dc : objectRef) {
 
+            List<Annotation> annots = adao.getAnnotations(dc.getRgdId());
+
+            for (Annotation annot : annots){
+                String[] term = annot.getTermAcc().split(":");
+                if (term[0].equals(ont)){
+                    // get term and childs
+                    Term t = dao.getTermByAccId(annot.getTermAcc());
+                    DataConverter d = new DataConverter();
+                    if (t == null){
+                        continue;
+                    }
+                    d.setAccId(t.getAccId());
+                    d.setPmid(dc.getPmid());
+                    d.setTitle(t.getTerm());
+                    data.add(d);
+                    List<TermWithStats> tws = dao.getActiveChildTerms(annot.getTermAcc(),3);
+                    for (TermWithStats tw : tws){
+                        DataConverter dc2 = new DataConverter();
+                        dc2.setAccId(tw.getAccId());
+                        dc2.setPmid(dc.getPmid());
+                        dc2.setTitle(tw.getTerm());
+                        data.add(dc2);
+                    }
+
+                }
+
+            } // end annotations loop
+
+        } // end of object Ref loop
 
         return data;
     }

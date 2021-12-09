@@ -116,11 +116,11 @@ public class Manager {
                 list = getter.getQTLs();
                 break;
             case "RGDdiseaseOntologies.xml.gz":
-                list = getter.getOntologies("RDO");
+                list = getter.getOntologies("DOID");
                 ontology = true;
                 break;
             case "RGDgeneOntology.xml.gz":
-                list = getter.getOntologies("MF");
+                list = getter.getOntologies("GO");
                 ontology = true;
                 break;
             case "RGDmammalianPhenotype.xml.gz":
