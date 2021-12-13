@@ -38,6 +38,9 @@ public class Manager {
         String url;
         String file;
         getter.createReferences();
+        if (checkArgsForOnt(args)){
+            getter.createOntologies();
+        }
         try {
             for (int i = 0; i < args.length; i++){
                 logger.info("======================");
@@ -116,23 +119,23 @@ public class Manager {
                 list = getter.getQTLs();
                 break;
             case "RGDdiseaseOntologies.xml.gz":
-                list = getter.getOntologies("DOID");
+                list = getter.getOntology("DOID");
                 ontology = true;
                 break;
             case "RGDgeneOntology.xml.gz":
-                list = getter.getOntologies("GO");
+                list = getter.getOntology("GO");
                 ontology = true;
                 break;
             case "RGDmammalianPhenotype.xml.gz":
-                list = getter.getOntologies("MP");
+                list = getter.getOntology("MP");
                 ontology = true;
                 break;
             case "RGDhumanPhenotype.xml.gz":
-                list = getter.getOntologies("HP");
+                list = getter.getOntology("HP");
                 ontology = true;
                 break;
             case "RGDpathwayOntology.xml.gz":
-                list = getter.getOntologies("PW");
+                list = getter.getOntology("PW");
                 ontology = true;
                 break;
         }
@@ -170,7 +173,7 @@ public class Manager {
         out.close();
         logger.info("\t\tCreated file: "+file);
 
-        logger.info("\tCreating file \"" + file + "\" end");
+        logger.info("\tCreating file \"" + file + "\" end\n");
     }
 
     BufferedWriter openOutputFile(String outputFile) throws IOException {
@@ -179,6 +182,14 @@ public class Manager {
         } else {
             return new BufferedWriter(new FileWriter("data/"+outputFile));
         }
+    }
+
+    private boolean checkArgsForOnt(String[] args) {
+        for (String arg : args){
+            if (arg.contains("ont"))
+                return true;
+        }
+        return false;
     }
 
     public void setVersion(String version) {

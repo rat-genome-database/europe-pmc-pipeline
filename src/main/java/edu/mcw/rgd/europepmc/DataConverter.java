@@ -18,6 +18,12 @@ public class DataConverter {
     private List<DataConverter> objectRef = new ArrayList<>();
     private List<DataConverter> references = new ArrayList<>();
 
+    private List<DataConverter> diseaseOnt = new ArrayList<>();
+    private List<DataConverter> geneOnt = new ArrayList<>();
+    private List<DataConverter> mammalianPhen = new ArrayList<>();
+    private List<DataConverter> humanPhen = new ArrayList<>();
+    private List<DataConverter> pathwayOnt = new ArrayList<>();
+
     public DataConverter(){}
 
     public void createReferences() throws Exception{
@@ -69,7 +75,7 @@ public class DataConverter {
         return data;
     }
 
-    public List<DataConverter> getOntologies(String ont) throws Exception{
+    public void createOntologies() throws Exception{
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
         AnnotationDAO adao = new AnnotationDAO();
@@ -79,34 +85,78 @@ public class DataConverter {
             List<Annotation> annots = adao.getAnnotations(dc.getRgdId());
 
             for (Annotation annot : annots){
-                String[] term = annot.getTermAcc().split(":");
-                if (term[0].equals(ont)){
-                    // get term and childs
-                    Term t = dao.getTermByAccId(annot.getTermAcc());
-                    DataConverter d = new DataConverter();
-                    if (t == null){
-                        continue;
-                    }
-                    d.setAccId(t.getAccId());
-                    d.setPmid(dc.getPmid());
-                    d.setTitle(t.getTerm());
-                    data.add(d);
-                    List<TermWithStats> tws = dao.getActiveChildTerms(annot.getTermAcc(),3);
-                    for (TermWithStats tw : tws){
-                        DataConverter dc2 = new DataConverter();
-                        dc2.setAccId(tw.getAccId());
-                        dc2.setPmid(dc.getPmid());
-                        dc2.setTitle(tw.getTerm());
-                        data.add(dc2);
-                    }
-
-                }
-
+                // during loop, sort into respective lists
+                // instead of multiple long loops, just one and multiple lists
+                addOntTerms(dc,annot);
             } // end annotations loop
 
         } // end of object Ref loop
 
-        return data;
+        return;
+    }
+
+    public void addOntTerms(DataConverter dc, Annotation annot) throws Exception{
+        List<DataConverter> data = new ArrayList<>();
+        OntologyXDAO dao = new OntologyXDAO();
+
+        Term t = dao.getTermByAccId(annot.getTermAcc());
+        DataConverter d = new DataConverter();
+        if (t == null){
+            return;
+        }
+        d.setAccId(t.getAccId());
+        d.setPmid(dc.getPmid());
+        d.setTitle(t.getTerm());
+        data.add(d);
+        // get term and childs
+        List<TermWithStats> tws = dao.getActiveChildTerms(annot.getTermAcc(),3);
+        for (TermWithStats tw : tws){
+            DataConverter dc2 = new DataConverter();
+            dc2.setAccId(tw.getAccId());
+            dc2.setPmid(dc.getPmid());
+            dc2.setTitle(tw.getTerm());
+            data.add(dc2);
+        }
+
+        String[] term = annot.getTermAcc().split(":");
+        // during loop, sort into respective lists
+        // instead of multiple long loops, just one and multiple lists
+        switch (term[0]){
+            case "DOID":
+                diseaseOnt.addAll(data);
+                break;
+            case "GO":
+                geneOnt.addAll(data);
+                break;
+            case "MP":
+                mammalianPhen.addAll(data);
+                break;
+            case "HP":
+                humanPhen.addAll(data);
+                break;
+            case "PW":
+                pathwayOnt.addAll(data);
+                break;
+        }
+
+
+    }
+
+    public List<DataConverter> getOntology(String ont) throws Exception{
+        switch (ont){
+            case "DOID":
+                return diseaseOnt;
+            case "GO":
+                return geneOnt;
+            case "MP":
+                return mammalianPhen;
+            case "HP":
+                return humanPhen;
+            case "PW":
+                return pathwayOnt;
+            default:
+                return diseaseOnt;
+        }
     }
 
     public List<DataConverter> getStrains() throws Exception{
