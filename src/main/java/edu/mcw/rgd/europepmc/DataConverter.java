@@ -75,7 +75,7 @@ public class DataConverter {
         return data;
     }
 
-    public void createOntologies() throws Exception{
+    public List<DataConverter> createOntologies(String ont) throws Exception{
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
         AnnotationDAO adao = new AnnotationDAO();
@@ -87,12 +87,24 @@ public class DataConverter {
             for (Annotation annot : annots){
                 // during loop, sort into respective lists
                 // instead of multiple long loops, just one and multiple lists
-                addOntTerms(dc,annot);
+                String[] prefix = annot.getTermAcc().split(":");
+                if (ont.equals(prefix[0])){
+                    Term t = dao.getTermByAccId(annot.getTermAcc());
+                    DataConverter d = new DataConverter();
+                    if (t == null){
+                        continue;
+                    }
+                    d.setAccId(t.getAccId());
+                    d.setPmid(dc.getPmid());
+                    d.setTitle(t.getTerm());
+                    data.add(d);
+                }
+
             } // end annotations loop
 
         } // end of object Ref loop
 
-        return;
+        return data;
     }
 
     public void addOntTerms(DataConverter dc, Annotation annot) throws Exception{
