@@ -7,6 +7,7 @@ import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 public class DataConverter {
@@ -79,6 +80,7 @@ public class DataConverter {
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
         AnnotationDAO adao = new AnnotationDAO();
+        HashMap<String, Boolean> duplicate = new HashMap<>();
         // RDO DOID, GO, MP, HP, PW
         for (DataConverter dc : objectRef) {
 
@@ -87,7 +89,25 @@ public class DataConverter {
             for (Annotation annot : annots){
                 // during loop, sort into respective lists
                 // instead of multiple long loops, just one and multiple lists
-                addOntTerms(dc,annot);
+
+                // check for duplicates
+                String[] term = annot.getTermAcc().split(":");
+                switch (term[0]){
+                    case "DOID":
+                    case "GO":
+                    case "MP":
+                    case "HP":
+                    case "PW":
+                        if (duplicate.get(annot.getTermAcc()) == null) {
+                            addOntTerms(dc, annot);
+                            duplicate.put(annot.getTermAcc(),true);
+                        }
+                        break;
+                    default:
+                        continue;
+                }
+
+
 //                String[] prefix = annot.getTermAcc().split(":");
 //                if (ont.equals(prefix[0])){
 //                    Term t = dao.getTermByAccId(annot.getTermAcc());
