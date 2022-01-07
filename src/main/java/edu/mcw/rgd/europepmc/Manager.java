@@ -38,9 +38,9 @@ public class Manager {
         String url;
         String file;
         getter.createReferences();
-//        if (checkArgsForOnt(args)){
-//            getter.createOntologies();
-//        }
+        if (checkArgsForOnt(args)){
+            getter.createOntologies();
+        }
         try {
             for (int i = 0; i < args.length; i++){
                 logger.info("======================");
@@ -119,23 +119,23 @@ public class Manager {
                 list = getter.getQTLs();
                 break;
             case "RGDdiseaseOntologies.xml.gz":
-                list = getter.createOntologies("DOID");
+                list = getter.getOntology("DOID");
                 ontology = true;
                 break;
             case "RGDgeneOntology.xml.gz":
-                list = getter.createOntologies("GO");
+                list = getter.getOntology("GO");
                 ontology = true;
                 break;
             case "RGDmammalianPhenotype.xml.gz":
-                list = getter.createOntologies("MP");
+                list = getter.getOntology("MP");
                 ontology = true;
                 break;
             case "RGDhumanPhenotype.xml.gz":
-                list = getter.createOntologies("HP");
+                list = getter.getOntology("HP");
                 ontology = true;
                 break;
             case "RGDpathwayOntology.xml.gz":
-                list = getter.createOntologies("PW");
+                list = getter.getOntology("PW");
                 ontology = true;
                 break;
         }
