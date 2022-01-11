@@ -66,7 +66,7 @@ public class Manager {
                         create(url,file);
                         break;
                     case "--ontRDO":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=All";
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=All";
                         file = "RGDdiseaseOntologies.xml.gz";
                         create(url,file);
                         break;
@@ -81,7 +81,7 @@ public class Manager {
                         create(url,file);
                         break;
                     case "--ontHumPhen":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&species=Human";
+                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=Human";
                         file = "RGDhumanPhenotype.xml.gz";
                         create(url,file);
                         break;
