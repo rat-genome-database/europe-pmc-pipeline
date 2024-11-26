@@ -1,7 +1,8 @@
 package edu.mcw.rgd.europepmc;
 
 import edu.mcw.rgd.process.Utils;
-import org.apache.log4j.Logger;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.springframework.beans.factory.support.DefaultListableBeanFactory;
 import org.springframework.beans.factory.xml.XmlBeanDefinitionReader;
 import org.springframework.core.io.FileSystemResource;
@@ -16,17 +17,18 @@ import java.util.zip.GZIPOutputStream;
 public class Manager {
     public String version;
     public DataConverter getter = new DataConverter();
-    protected Logger logger = Logger.getLogger("status");
+    protected Logger logger = LogManager.getLogger("status");
 
     public static void main(String[] args) throws Exception{
         DefaultListableBeanFactory bf = new DefaultListableBeanFactory();
         new XmlBeanDefinitionReader(bf).loadBeanDefinitions(new FileSystemResource("properties/AppConfigure.xml"));
+        Manager manager = (Manager)(bf.getBean("manager"));
         try{
-            Manager manager = (Manager)(bf.getBean("manager"));
             manager.run(args);
         }
         catch (Exception e){
-           e.printStackTrace();
+            Utils.printStackTrace(e, manager.logger);
+            throw e;
         }
     }
 
@@ -41,63 +43,59 @@ public class Manager {
         if (checkArgsForOnt(args)){
             getter.createOntologies();
         }
-        try {
-            for (int i = 0; i < args.length; i++){
-                logger.info("======================");
-                switch (args[i]){
-                    case "--rgdRef":
-                        url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id={temp}";
-                        file = "RGDReferences.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--genes":
-                        url = "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={temp}";
-                        file = "RGDgenes.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--strains":
-                        url = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id={temp}";
-                        file = "RGDstrains.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--qtls":
-                        url = "https://rgd.mcw.edu/rgdweb/report/qtl/main.html?id={temp}";
-                        file = "RGDqtls.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--ontRDO":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=All";
-                        file = "RGDdiseaseOntologies.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--ontGO":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDgeneOntology.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--ontMamPhen":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDmammalianPhenotype.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--ontHumPhen":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=Human";
-                        file = "RGDhumanPhenotype.xml.gz";
-                        create(url,file);
-                        break;
-                    case "--ontPathway":
-                        url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
-                        file = "RGDpathwayOntology.xml.gz";
-                        create(url,file);
-                        break;
-                }
+
+        for (int i = 0; i < args.length; i++){
+            logger.info("======================");
+            switch (args[i]){
+                case "--rgdRef":
+                    url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id={temp}";
+                    file = "RGDReferences.xml.gz";
+                    create(url,file);
+                    break;
+                case "--genes":
+                    url = "https://rgd.mcw.edu/rgdweb/report/gene/main.html?id={temp}";
+                    file = "RGDgenes.xml.gz";
+                    create(url,file);
+                    break;
+                case "--strains":
+                    url = "https://rgd.mcw.edu/rgdweb/report/strain/main.html?id={temp}";
+                    file = "RGDstrains.xml.gz";
+                    create(url,file);
+                    break;
+                case "--qtls":
+                    url = "https://rgd.mcw.edu/rgdweb/report/qtl/main.html?id={temp}";
+                    file = "RGDqtls.xml.gz";
+                    create(url,file);
+                    break;
+                case "--ontRDO":
+                    url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=All";
+                    file = "RGDdiseaseOntologies.xml.gz";
+                    create(url,file);
+                    break;
+                case "--ontGO":
+                    url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                    file = "RGDgeneOntology.xml.gz";
+                    create(url,file);
+                    break;
+                case "--ontMamPhen":
+                    url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                    file = "RGDmammalianPhenotype.xml.gz";
+                    create(url,file);
+                    break;
+                case "--ontHumPhen":
+                    url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}&amp;species=Human";
+                    file = "RGDhumanPhenotype.xml.gz";
+                    create(url,file);
+                    break;
+                case "--ontPathway":
+                    url = "https://rgd.mcw.edu/rgdweb/ontology/annot.html?acc_id={temp}";
+                    file = "RGDpathwayOntology.xml.gz";
+                    create(url,file);
+                    break;
             }
         }
-        catch (Exception e){
-            logger.info(e);
-            e.printStackTrace();
-        }
-        logger.info("Pipeline runtime -- elapsed time: "+ Utils.formatElapsedTime(pipeStart,System.currentTimeMillis()));
+
+        logger.info("OK --- pipeline elapsed time: "+ Utils.formatElapsedTime(pipeStart,System.currentTimeMillis()));
     }
 
     void create(String url, String file) throws Exception{
