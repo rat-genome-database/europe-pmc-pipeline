@@ -145,6 +145,10 @@ public class Manager {
         out.write("<links>\n");
 
         for (DataConverter dataConverter : list) {
+            if (Utils.isStringEmpty(dataConverter.getTitle())){
+                logger.info("!!!! "+dataConverter.getRgdId() + " has no title!!!!");
+                continue;
+            }
             String title = dataConverter.getTitle().replaceAll("&", "&amp;");
             title = title.replaceAll("<", "&lt;");
             title = title.replaceAll(">", "&gt;");
