@@ -175,7 +175,7 @@ public class Manager {
         out.close();
         logger.info("\t\tCreated file: "+file);
 
-        logger.info("\tCreating file \"" + file + "\" end\n");
+        logger.info("\tCreating file \"" + file + "\" end");
     }
 
     BufferedWriter openOutputFile(String outputFile) throws IOException {
