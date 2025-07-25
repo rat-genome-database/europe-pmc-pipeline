@@ -5,6 +5,8 @@ import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
 import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -25,9 +27,13 @@ public class DataConverter {
     private List<DataConverter> humanPhen = new ArrayList<>();
     private List<DataConverter> pathwayOnt = new ArrayList<>();
 
+    private Logger logger = LogManager.getLogger("status");
+
     public DataConverter(){}
 
     public void createReferences() throws Exception{
+        logger.debug("createReferences()  starting...");
+
         ReferenceDAO rdao = new ReferenceDAO();
         XdbIdDAO xdbDAO = new XdbIdDAO();
         AssociationDAO associationDAO = new AssociationDAO();
@@ -47,6 +53,8 @@ public class DataConverter {
             references.add(dc);
         }
 
+        logger.debug("createReferences()  loaded PMIDs");
+
         for (DataConverter dc : references){
             List<GenomicElement> refObjs = associationDAO.getElementsAssociatedWithReference(dc.getRgdId());// get the objects related
             for (GenomicElement ge : refObjs)// loop thru objects related to reference
@@ -62,7 +70,7 @@ public class DataConverter {
 //            RgdId.getObjectTypeName(ge.getObjectKey())
         }
 
-        return;
+        logger.debug("createReferences()  loaded assoc objs");
     }
 
     public List<DataConverter> getGenes() throws Exception {
@@ -77,6 +85,7 @@ public class DataConverter {
     }
 
     public void createOntologies() throws Exception{
+
         List<DataConverter> data = new ArrayList<>();
         OntologyXDAO dao = new OntologyXDAO();
         AnnotationDAO adao = new AnnotationDAO();
