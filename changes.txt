@@ -1,2 +1,5 @@
+Jul 25, 2025
+  updated dependencies
+
 Nov 25, 2024
   converted to java 17 and log4j2
