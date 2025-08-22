@@ -12,7 +12,6 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
-import java.util.zip.GZIPOutputStream;
 
 public class Manager {
     public String version;
@@ -179,11 +178,8 @@ public class Manager {
     }
 
     BufferedWriter openOutputFile(String outputFile) throws IOException {
-        if( outputFile.endsWith(".gz") ) {
-            return new BufferedWriter(new OutputStreamWriter(new GZIPOutputStream(new FileOutputStream("data/"+outputFile))));
-        } else {
-            return new BufferedWriter(new FileWriter("data/"+outputFile));
-        }
+
+        return Utils.openWriter("data/"+outputFile);
     }
 
     private boolean checkArgsForOnt(String[] args) {
