@@ -1,5 +1,6 @@
 package edu.mcw.rgd.europepmc;
 
+import edu.mcw.rgd.process.MemoryMonitor;
 import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -35,6 +36,9 @@ public class Manager {
         logger.info(getVersion());
         SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long pipeStart = System.currentTimeMillis();
+
+        MemoryMonitor memoryMonitor = new MemoryMonitor();
+        memoryMonitor.start();
         logger.info("   Pipeline started at "+sdt.format(new Date(pipeStart))+"\n");
         String url;
         String file;
@@ -94,6 +98,8 @@ public class Manager {
             }
         }
 
+        memoryMonitor.stop();
+        logger.info(memoryMonitor.getSummary());
         logger.info("OK --- pipeline elapsed time: "+ Utils.formatElapsedTime(pipeStart,System.currentTimeMillis()));
     }
 

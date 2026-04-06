@@ -4,7 +4,6 @@ import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
-import edu.mcw.rgd.datamodel.ontologyx.TermWithStats;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
