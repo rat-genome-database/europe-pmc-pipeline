@@ -1,6 +1,5 @@
 package edu.mcw.rgd.europepmc;
 
-import edu.mcw.rgd.dao.impl.*;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
@@ -30,18 +29,15 @@ public class DataConverter {
 
     public DataConverter(){}
 
-    public void createReferences() throws Exception{
+    public void createReferences(DAO dao) throws Exception{
         logger.debug("createReferences()  starting...");
 
-        ReferenceDAO rdao = new ReferenceDAO();
-        XdbIdDAO xdbDAO = new XdbIdDAO();
-        AssociationDAO associationDAO = new AssociationDAO();
-        List<Reference> list  = rdao.getActiveReferences();
+        List<Reference> list  = dao.getActiveReferences();
 
         for (Reference ref : list){
             DataConverter dc = new DataConverter();
             try{
-                String pubid = xdbDAO.getXdbIdsByRgdId(2, ref.getRgdId()).get(0).getAccId();
+                String pubid = dao.getXdbIdsByRgdId(2, ref.getRgdId()).get(0).getAccId();
                 dc.setPmid(pubid);
             }
             catch (Exception e){
@@ -55,7 +51,7 @@ public class DataConverter {
         logger.debug("createReferences()  loaded PMIDs");
 
         for (DataConverter dc : references){
-            List<GenomicElement> refObjs = associationDAO.getElementsAssociatedWithReference(dc.getRgdId());// get the objects related
+            List<GenomicElement> refObjs = dao.getElementsAssociatedWithReference(dc.getRgdId());// get the objects related
             for (GenomicElement ge : refObjs)// loop thru objects related to reference
             {
                 DataConverter dc2 = new DataConverter();
@@ -83,20 +79,16 @@ public class DataConverter {
         return data;
     }
 
-    public void createOntologies() throws Exception{
+    public void createOntologies(DAO dao) throws Exception{
 
-        List<DataConverter> data = new ArrayList<>();
-        OntologyXDAO dao = new OntologyXDAO();
-        AnnotationDAO adao = new AnnotationDAO();
         HashMap<String, Boolean> duplicate = new HashMap<>();
         // RDO DOID, GO, MP, HP, PW
         for (DataConverter dc : objectRef) {
 
-            List<Annotation> annots = adao.getAnnotations(dc.getRgdId());
+            List<Annotation> annots = dao.getAnnotations(dc.getRgdId());
 
             for (Annotation annot : annots){
                 // during loop, sort into respective lists
-                // instead of multiple long loops, just one and multiple lists
 
                 // check for duplicates
                 String[] term = annot.getTermAcc().split(":");
@@ -107,38 +99,20 @@ public class DataConverter {
                     case "HP":
                     case "PW":
                         if (duplicate.get(annot.getTermAcc()) == null) {
-                            addOntTerms(dc, annot);
+                            addOntTerms(dc, annot, dao);
                             duplicate.put(annot.getTermAcc(),true);
                         }
                         break;
                     default:
                         continue;
                 }
-
-
-//                String[] prefix = annot.getTermAcc().split(":");
-//                if (ont.equals(prefix[0])){
-//                    Term t = dao.getTermByAccId(annot.getTermAcc());
-//                    DataConverter d = new DataConverter();
-//                    if (t == null){
-//                        continue;
-//                    }
-//                    d.setAccId(t.getAccId());
-//                    d.setPmid(dc.getPmid());
-//                    d.setTitle(t.getTerm());
-//                    data.add(d);
-//                }
-
             } // end annotations loop
 
         } // end of object Ref loop
-
-        return;
     }
 
-    public void addOntTerms(DataConverter dc, Annotation annot) throws Exception{
+    public void addOntTerms(DataConverter dc, Annotation annot, DAO dao) throws Exception{
         List<DataConverter> data = new ArrayList<>();
-        OntologyXDAO dao = new OntologyXDAO();
 
         Term t = dao.getTermByAccId(annot.getTermAcc());
         DataConverter d = new DataConverter();

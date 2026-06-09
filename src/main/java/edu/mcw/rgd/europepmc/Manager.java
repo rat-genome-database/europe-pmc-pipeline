@@ -17,6 +17,7 @@ import java.util.List;
 public class Manager {
     public String version;
     public DataConverter getter = new DataConverter();
+    private DAO dao = new DAO();
     protected Logger logger = LogManager.getLogger("status");
 
     public static void main(String[] args) throws Exception{
@@ -34,6 +35,7 @@ public class Manager {
 
     void run(String[] args) throws Exception{
         logger.info(getVersion());
+        logger.info("   "+dao.getConnectionInfo());
         SimpleDateFormat sdt = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss");
         long pipeStart = System.currentTimeMillis();
 
@@ -42,9 +44,9 @@ public class Manager {
         logger.info("   Pipeline started at "+sdt.format(new Date(pipeStart))+"\n");
         String url;
         String file;
-        getter.createReferences();
+        getter.createReferences(dao);
         if (checkArgsForOnt(args)){
-            getter.createOntologies();
+            getter.createOntologies(dao);
         }
 
         for (int i = 0; i < args.length; i++){
