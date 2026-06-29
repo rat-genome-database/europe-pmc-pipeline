@@ -3,6 +3,7 @@ package edu.mcw.rgd.europepmc;
 import edu.mcw.rgd.datamodel.*;
 import edu.mcw.rgd.datamodel.ontology.Annotation;
 import edu.mcw.rgd.datamodel.ontologyx.Term;
+import edu.mcw.rgd.process.Utils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -30,11 +31,16 @@ public class DataConverter {
     public DataConverter(){}
 
     public void createReferences(DAO dao) throws Exception{
-        logger.debug("createReferences()  starting...");
 
-        List<Reference> list  = dao.getActiveReferences();
+        List<Reference> list = dao.getActiveReferences();
+        logger.info("   loaded "+list.size()+" active references");
 
+        // resolve the PubMed id for each reference
+        long phase = System.currentTimeMillis();
+        long lastLog = phase;
+        int n = 0;
         for (Reference ref : list){
+            n++;
             DataConverter dc = new DataConverter();
             try{
                 String pubid = dao.getXdbIdsByRgdId(2, ref.getRgdId()).get(0).getAccId();
@@ -46,11 +52,20 @@ public class DataConverter {
             dc.setRgdId(ref.getRgdId());
             dc.setTitle(ref.getTitle());
             references.add(dc);
+
+            if (System.currentTimeMillis()-lastLog > 60000){
+                lastLog = System.currentTimeMillis();
+                logger.info("      resolving PubMed ids ... "+n+" / "+list.size());
+            }
         }
+        logger.info("   resolved PubMed ids for "+references.size()+" references ("+Utils.formatElapsedTime(phase, System.currentTimeMillis())+")");
 
-        logger.debug("createReferences()  loaded PMIDs");
-
+        // load the RGD objects associated with each reference
+        phase = System.currentTimeMillis();
+        lastLog = phase;
+        n = 0;
         for (DataConverter dc : references){
+            n++;
             List<GenomicElement> refObjs = dao.getElementsAssociatedWithReference(dc.getRgdId());// get the objects related
             for (GenomicElement ge : refObjs)// loop thru objects related to reference
             {
@@ -62,10 +77,13 @@ public class DataConverter {
                 dc2.setAccId(ge.getSoAccId());
                 objectRef.add(dc2); // store in objectRef
             }
-//            RgdId.getObjectTypeName(ge.getObjectKey())
-        }
 
-        logger.debug("createReferences()  loaded assoc objs");
+            if (System.currentTimeMillis()-lastLog > 60000){
+                lastLog = System.currentTimeMillis();
+                logger.info("      loading associated objects ... "+n+" / "+references.size());
+            }
+        }
+        logger.info("   loaded "+objectRef.size()+" reference-associated objects ("+Utils.formatElapsedTime(phase, System.currentTimeMillis())+")");
     }
 
     public List<DataConverter> getGenes() throws Exception {
@@ -81,9 +99,15 @@ public class DataConverter {
 
     public void createOntologies(DAO dao) throws Exception{
 
+        long phase = System.currentTimeMillis();
+        logger.info("   loading ontology annotations for "+objectRef.size()+" objects");
+
         HashMap<String, Boolean> duplicate = new HashMap<>();
+        long lastLog = phase;
+        int n = 0;
         // RDO DOID, GO, MP, HP, PW
         for (DataConverter dc : objectRef) {
+            n++;
 
             List<Annotation> annots = dao.getAnnotations(dc.getRgdId());
 
@@ -108,7 +132,15 @@ public class DataConverter {
                 }
             } // end annotations loop
 
+            if (System.currentTimeMillis()-lastLog > 60000){
+                lastLog = System.currentTimeMillis();
+                logger.info("      loading annotations ... "+n+" / "+objectRef.size());
+            }
         } // end of object Ref loop
+
+        logger.info("   loaded ontology terms: "+diseaseOnt.size()+" disease, "+geneOnt.size()+" GO, "
+                +mammalianPhen.size()+" MP, "+humanPhen.size()+" HP, "+pathwayOnt.size()+" pathway ("
+                +Utils.formatElapsedTime(phase, System.currentTimeMillis())+")");
     }
 
     public void addOntTerms(DataConverter dc, Annotation annot, DAO dao) throws Exception{

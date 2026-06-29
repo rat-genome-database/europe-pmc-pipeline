@@ -50,7 +50,6 @@ public class Manager {
         }
 
         for (int i = 0; i < args.length; i++){
-            logger.info("======================");
             switch (args[i]){
                 case "--rgdRef":
                     url = "https://rgd.mcw.edu/rgdweb/report/reference/main.html?id={temp}";
@@ -106,7 +105,6 @@ public class Manager {
     }
 
     void create(String url, String file) throws Exception{
-        logger.info("\tCreating file \"" + file + "\" start!");
         List<DataConverter> list = new ArrayList<>();
         boolean ontology = false;
         // get data
@@ -180,9 +178,7 @@ public class Manager {
         }
         out.write("</links>");
         out.close();
-        logger.info("\t\tCreated file: "+file);
-
-        logger.info("\tCreating file \"" + file + "\" end");
+        logger.info("Created file: "+file);
     }
 
     BufferedWriter openOutputFile(String outputFile) throws IOException {
