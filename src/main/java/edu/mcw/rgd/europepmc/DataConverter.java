@@ -41,14 +41,13 @@ public class DataConverter {
         int n = 0;
         for (Reference ref : list){
             n++;
-            DataConverter dc = new DataConverter();
-            try{
-                String pubid = dao.getXdbIdsByRgdId(2, ref.getRgdId()).get(0).getAccId();
-                dc.setPmid(pubid);
-            }
-            catch (Exception e){
+            // skip references without a PubMed id; let db errors propagate
+            List<XdbId> pubmedIds = dao.getXdbIdsByRgdId(XdbId.XDB_KEY_PUBMED, ref.getRgdId());
+            if (pubmedIds.isEmpty()) {
                 continue;
             }
+            DataConverter dc = new DataConverter();
+            dc.setPmid(pubmedIds.get(0).getAccId());
             dc.setRgdId(ref.getRgdId());
             dc.setTitle(ref.getTitle());
             references.add(dc);

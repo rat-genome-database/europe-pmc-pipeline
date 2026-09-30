@@ -1,3 +1,6 @@
+Sep 30, 2026
+  references without a PubMed id are skipped explicitly; db errors during PubMed id lookup are no longer silently swallowed
+
 Jun 29, 2026
   simplified file logging to a single 'Created file' line; added progress/timing messages to the reference and ontology loading phases; updated dependencies
 
